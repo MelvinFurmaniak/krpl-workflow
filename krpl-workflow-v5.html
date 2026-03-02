@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KRPL – Projekt Workflow</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0d1117;
+    color: #e6edf3;
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px 20px;
+  }
+
+  /* ── VORHER SECTION ───────────────────────────── */
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    opacity: 0.5;
+  }
+
+  .section-label.before { color: #F85149; }
+  .section-label.after  { color: #3FB950; }
+
+  .before-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .before-header h2 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #8b949e;
+    letter-spacing: -0.5px;
+  }
+
+  /* Old status pills */
+  .old-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: nowrap;
+    margin-bottom: 40px;
+  }
+
+  .old-node {
+    width: 120px;
+    padding: 14px 10px;
+    border-radius: 10px;
+    text-align: center;
+    border: 1.5px solid;
+    opacity: 0.75;
+  }
+
+  .old-node .node-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    opacity: 0.7;
+  }
+
+  .old-node .node-title {
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .old-node .node-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin: 8px auto 0;
+  }
+
+  .old-todo    { background: #161b22; border-color: #6E7681; color: #8b949e; }
+  .old-todo .node-dot { background: #6E7681; }
+  .old-inb     { background: #0c1a2e; border-color: #388BFD; color: #388BFD; }
+  .old-inb .node-dot { background: #388BFD; }
+  .old-intfb   { background: #1a0f2e; border-color: #A371F7; color: #A371F7; }
+  .old-intfb .node-dot { background: #A371F7; }
+  .old-fbkunde { background: #1f0000; border-color: #F85149; color: #F85149; }
+  .old-fbkunde .node-dot { background: #F85149; }
+  .old-done    { background: #0a1f0a; border-color: #3FB950; color: #3FB950; }
+  .old-done .node-dot { background: #3FB950; }
+
+  .old-arrow {
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+  }
+  .old-arrow-line {
+    width: 28px;
+    height: 2px;
+    background: #30363d;
+    position: relative;
+  }
+  .old-arrow-line::after {
+    content: '';
+    position: absolute;
+    right: -1px; top: -4px;
+    border-left: 7px solid #30363d;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+  }
+
+  /* Task cards for the chaos example */
+  .chaos-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #F85149;
+    opacity: 0.7;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .chaos-cards {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 16px;
+    max-width: 900px;
+  }
+
+  .chaos-card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 12px 16px;
+    width: 165px;
+    position: relative;
+  }
+
+  .chaos-card .card-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    color: #F85149;
+    opacity: 0.7;
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+  }
+
+  .chaos-card .card-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: #e6edf3;
+    line-height: 1.4;
+    margin-bottom: 8px;
+  }
+
+  .chaos-card .card-status {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.5px;
+  }
+
+  .status-todo    { background: #21262d; color: #6E7681; border: 1px solid #30363d; }
+  .status-inb     { background: #0c1a2e; color: #388BFD; border: 1px solid #1f4070; }
+  .status-intfb   { background: #1a0f2e; color: #A371F7; border: 1px solid #3d2170; }
+  .status-fbkunde { background: #1f0000; color: #F85149; border: 1px solid #6b1a17; }
+  .status-done    { background: #0a1f0a; color: #3FB950; border: 1px solid #1a4d1a; }
+
+  .chaos-note {
+    font-size: 11px;
+    color: #F85149;
+    opacity: 0.8;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.5px;
+    margin-top: 8px;
+  }
+
+  /* ── DIVIDER ──────────────────────────────────── */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin: 160px 0 160px;
+    width: 100%;
+    max-width: 900px;
+  }
+
+  .divider-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, #30363d);
+  }
+
+  .divider-line.right {
+    background: linear-gradient(to left, transparent, #30363d);
+  }
+
+  .divider-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #3FB950;
+    padding: 6px 16px;
+    border: 1px solid #3FB950;
+    border-radius: 20px;
+    white-space: nowrap;
+    opacity: 0.85;
+  }
+
+  /* ── AFTER SECTION (existing) ─────────────────── */
+  .header {
+    text-align: center;
+    margin-bottom: 80px;
+  }
+
+  .header h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #388BFD;
+    margin-bottom: 12px;
+  }
+
+  .header h2 {
+    font-size: 28px;
+    font-weight: 600;
+    color: #e6edf3;
+    letter-spacing: -0.5px;
+  }
+
+  .diagram-wrapper {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .workflow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: nowrap;
+    position: relative;
+    margin-top: 60px;
+    margin-bottom: 200px;
+  }
+
+  .step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+  }
+
+  .node {
+    width: 120px;
+    padding: 14px 10px;
+    border-radius: 10px;
+    text-align: center;
+    border: 1.5px solid;
+    cursor: default;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .node:hover { transform: translateY(-3px); }
+
+  .node-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    opacity: 0.7;
+  }
+
+  .node-title { font-size: 11px; font-weight: 600; line-height: 1.3; }
+
+  .node-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin: 8px auto 0;
+  }
+
+  .todo { background: #161b22; border-color: #6E7681; color: #8b949e; }
+  .todo .node-dot { background: #6E7681; }
+  .inbearbeitung { background: #0c1a2e; border-color: #388BFD; color: #388BFD; box-shadow: 0 0 20px rgba(56,139,253,0.15); }
+  .inbearbeitung .node-dot { background: #388BFD; }
+  .internesreview { background: #1a0f2e; border-color: #A371F7; color: #A371F7; box-shadow: 0 0 20px rgba(163,113,247,0.15); }
+  .internesreview .node-dot { background: #A371F7; }
+  .wartenaufkunde { background: #1f1600; border-color: #D29922; color: #D29922; box-shadow: 0 0 20px rgba(210,153,34,0.15); }
+  .wartenaufkunde .node-dot { background: #D29922; }
+  .ueberarbeitung { background: #1f0e00; border-color: #DB6D28; color: #DB6D28; box-shadow: 0 0 20px rgba(219,109,40,0.15); }
+  .ueberarbeitung .node-dot { background: #DB6D28; }
+  .feedbackkunde { background: #1f0000; border-color: #F85149; color: #F85149; box-shadow: 0 0 20px rgba(248,81,73,0.2); }
+  .feedbackkunde .node-dot { background: #F85149; }
+  .node-subtitle { font-size: 9px; opacity: 0.6; margin-top: 4px; line-height: 1.2; }
+  .complete { background: #0a1f0a; border-color: #3FB950; color: #3FB950; box-shadow: 0 0 20px rgba(63,185,80,0.15); }
+  .complete .node-dot { background: #3FB950; }
+
+  .arrow {
+    display: flex;
+    align-items: center;
+    align-self: center;
+    padding: 0 8px;
+  }
+
+  .arrow-line {
+    width: 28px;
+    height: 2px;
+    background: #30363d;
+    position: relative;
+  }
+
+  .arrow-line::after {
+    content: '';
+    position: absolute;
+    right: -1px; top: -4px;
+    border-left: 7px solid #30363d;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+  }
+
+  .loop-svg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    overflow: visible;
+  }
+
+  .bottom-row {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    width: 100%;
+    max-width: 1200px;
+    margin-top: 120px;
+  }
+
+  .rule-box, .reasons-box {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    padding: 24px 32px;
+    flex: 1;
+  }
+
+  .rule-box h3, .reasons-box h3 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #388BFD;
+    margin-bottom: 16px;
+  }
+
+  .rule {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: #8b949e;
+    line-height: 1.5;
+  }
+
+  .rule-icon { flex-shrink: 0; font-size: 14px; }
+  .highlight { color: #e6edf3; font-weight: 500; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- VORHER SECTION                                  -->
+<!-- ═══════════════════════════════════════════════ -->
+
+<div class="before-header" style="margin-bottom:20px;">
+  <div class="section-label before">// Bisheriger Workflow</div>
+  <h2>Das Problem: 1 Projekt → viele losgelöste Tasks</h2>
+</div>
+
+<!-- Old status flow -->
+<div class="old-flow" style="margin-top:40px;">
+  <div class="old-node old-todo">
+    <div class="node-label">01</div>
+    <div class="node-title">TO DO'S</div>
+    <div class="node-dot"></div>
+  </div>
+  <div class="old-arrow"><div class="old-arrow-line"></div></div>
+  <div class="old-node old-inb">
+    <div class="node-label">02</div>
+    <div class="node-title">In Bearbeitung</div>
+    <div class="node-dot"></div>
+  </div>
+  <div class="old-arrow"><div class="old-arrow-line"></div></div>
+  <div class="old-node old-intfb">
+    <div class="node-label">03</div>
+    <div class="node-title">Internes Feedback</div>
+    <div class="node-dot"></div>
+  </div>
+  <div class="old-arrow"><div class="old-arrow-line"></div></div>
+  <div class="old-node old-done">
+    <div class="node-label">04</div>
+    <div class="node-title">Done</div>
+    <div class="node-dot"></div>
+  </div>
+  <div class="old-arrow"><div class="old-arrow-line"></div></div>
+  <!-- PM action pill -->
+  <div style="display:flex;align-items:center;justify-content:center;padding:10px 14px;border:1px dashed #D29922;border-radius:10px;background:#1f1600;color:#D29922;font-size:10px;font-weight:600;font-family:'Inter',sans-serif;line-height:1.4;text-align:center;max-width:130px;opacity:0.85;">
+    💬 PM geht ins Feedback&shy;gespräch mit dem Kunden
+  </div>
+</div>
+
+<div style="height:60px;"></div>
+<!-- Chaos example -->
+<div class="chaos-label" style="margin-top:100px;">// Reales Beispiel: Strohhacker – Taxi Buchungs Bot</div>
+
+<div class="chaos-cards">
+
+  <div class="chaos-card">
+    <div class="card-number">TASK #1 · Mo erstellt</div>
+    <div class="card-title">Taxi Bot MVP bauen</div>
+    <span class="card-status status-inb">In Bearbeitung</span>
+  </div>
+
+  <div class="chaos-card" style="border-color: #F85149; border-style: dashed;">
+    <div class="card-number" style="color:#F85149;">TASK #2 · unnötig erstellt ⚠️</div>
+    <div class="card-title">Datenbank bauen</div>
+    <span class="card-status status-inb">In Bearbeitung</span>
+  </div>
+
+  <div class="chaos-card" style="border-color: #F85149; border-style: dashed;">
+    <div class="card-number" style="color:#F85149;">TASK #3 · neu erstellt ⚠️</div>
+    <div class="card-title">Bugs fixen 1</div>
+    <span class="card-status status-intfb">Internes Feedback</span>
+  </div>
+
+  <div class="chaos-card" style="border-color: #F85149; border-style: dashed;">
+    <div class="card-number" style="color:#F85149;">TASK #4 · neu erstellt ⚠️</div>
+    <div class="card-title">Kundenfeedback Bugs fixen 1</div>
+    <span class="card-status status-todo">TO DO'S</span>
+  </div>
+
+  <div class="chaos-card" style="border-color: #F85149; border-style: dashed;">
+    <div class="card-number" style="color:#F85149;">TASK #5 · neu erstellt ⚠️</div>
+    <div class="card-title">Kundenfeedback Bugs fixen 2</div>
+    <span class="card-status status-todo">TO DO'S</span>
+  </div>
+
+</div>
+
+<div class="chaos-note">↑ 5 Tasks · kein Zusammenhang · keine gemeinsame History · Board-Chaos</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- DIVIDER                                         -->
+<!-- ═══════════════════════════════════════════════ -->
+
+<div class="divider">
+  <div class="divider-line"></div>
+  <div class="divider-badge">✦ Neuer Workflow</div>
+  <div class="divider-line right"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- NEUER WORKFLOW                                  -->
+<!-- ═══════════════════════════════════════════════ -->
+
+<div class="header">
+  <div class="section-label after">// Neuer Workflow</div>
+  <h1>KRPL Consulting · Projekt Workflow</h1>
+  <h2>1 Haupttask = 1 Projekt · Iterationen als Subtasks</h2>
+</div>
+
+<div class="diagram-wrapper" id="diagram">
+
+  <div class="workflow" id="workflow">
+
+    <div class="step" id="n1">
+      <div class="node todo">
+        <div class="node-label">01</div>
+        <div class="node-title">Zu Erledigen</div>
+        <div class="node-dot"></div>
+      </div>
+    </div>
+
+    <div class="arrow"><div class="arrow-line"></div></div>
+
+    <div class="step" id="n2">
+      <div class="node inbearbeitung">
+        <div class="node-label">02</div>
+        <div class="node-title">In Bearbeitung</div>
+        <div class="node-dot"></div>
+      </div>
+    </div>
+
+    <div class="arrow"><div class="arrow-line"></div></div>
+
+    <div class="step" id="n3">
+      <div class="node internesreview">
+        <div class="node-label">03</div>
+        <div class="node-title">Internes Review</div>
+        <div class="node-dot"></div>
+      </div>
+    </div>
+
+    <div class="arrow"><div class="arrow-line"></div></div>
+
+    <div class="step" id="n4">
+      <div class="node wartenaufkunde">
+        <div class="node-label">04</div>
+        <div class="node-title">Warten auf Kunde</div>
+        <div class="node-dot"></div>
+      </div>
+    </div>
+
+    <div class="arrow"><div class="arrow-line"></div></div>
+
+    <div class="step" id="n5">
+      <div class="node ueberarbeitung">
+        <div class="node-label">05</div>
+        <div class="node-title">Überarbeitung</div>
+        <div class="node-dot"></div>
+      </div>
+    </div>
+
+    <div class="arrow"><div class="arrow-line"></div></div>
+
+    <div class="step" id="n6">
+      <div class="node feedbackkunde">
+        <div class="node-label">06</div>
+        <div class="node-title">Feedback von Kunde</div>
+        <div class="node-subtitle">Entscheidungspunkt</div>
+        <div class="node-dot"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <svg class="loop-svg" id="loopSvg" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arr-orange" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+        <polygon points="0 0, 7 2.5, 0 5" fill="#DB6D28"/>
+      </marker>
+      <marker id="arr-gray" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+        <polygon points="0 0, 7 2.5, 0 5" fill="#30363d"/>
+      </marker>
+    </defs>
+  </svg>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SUBTASK STATUS RULE                             -->
+<!-- ═══════════════════════════════════════════════ -->
+
+<div style="margin-top:120px;margin-bottom:60px;width:100%;max-width:1200px;">
+  <div style="background:#161b22;border:1px solid #30363d;border-radius:12px;padding:24px 32px;">
+
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#388BFD;margin-bottom:20px;">
+      // Subtask-Regel · erlaubte Status
+    </div>
+
+    <div style="display:flex;align-items:center;gap:0;flex-wrap:wrap;row-gap:16px;">
+
+      <!-- Zu Erledigen -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:120px;padding:14px 10px;border-radius:10px;border:1.5px solid #6E7681;background:#161b22;text-align:center;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1.5px;color:#6E7681;opacity:0.7;">01</div>
+        <div style="font-size:11px;font-weight:600;color:#8b949e;">Zu Erledigen</div>
+        <div style="width:8px;height:8px;border-radius:50%;background:#6E7681;"></div>
+      </div>
+
+      <!-- arrow -->
+      <div style="padding:0 8px;display:flex;align-items:center;">
+        <div style="width:28px;height:2px;background:#30363d;position:relative;">
+          <div style="position:absolute;right:-1px;top:-4px;border-left:7px solid #30363d;border-top:5px solid transparent;border-bottom:5px solid transparent;"></div>
+        </div>
+      </div>
+
+      <!-- In Bearbeitung -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:120px;padding:14px 10px;border-radius:10px;border:1.5px solid #388BFD;background:#0c1a2e;text-align:center;box-shadow:0 0 20px rgba(56,139,253,0.15);">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1.5px;color:#388BFD;opacity:0.7;">02</div>
+        <div style="font-size:11px;font-weight:600;color:#388BFD;">In Bearbeitung</div>
+        <div style="width:8px;height:8px;border-radius:50%;background:#388BFD;"></div>
+      </div>
+
+      <!-- arrow -->
+      <div style="padding:0 8px;display:flex;align-items:center;">
+        <div style="width:28px;height:2px;background:#30363d;position:relative;">
+          <div style="position:absolute;right:-1px;top:-4px;border-left:7px solid #30363d;border-top:5px solid transparent;border-bottom:5px solid transparent;"></div>
+        </div>
+      </div>
+
+      <!-- Warten auf Kunde -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:120px;padding:14px 10px;border-radius:10px;border:1.5px solid #D29922;background:#1f1600;text-align:center;box-shadow:0 0 20px rgba(210,153,34,0.15);">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1.5px;color:#D29922;opacity:0.7;">03</div>
+        <div style="font-size:11px;font-weight:600;color:#D29922;line-height:1.3;">Warten auf Kunde</div>
+        <div style="width:8px;height:8px;border-radius:50%;background:#D29922;"></div>
+      </div>
+
+      <!-- arrow -->
+      <div style="padding:0 8px;display:flex;align-items:center;">
+        <div style="width:28px;height:2px;background:#30363d;position:relative;">
+          <div style="position:absolute;right:-1px;top:-4px;border-left:7px solid #30363d;border-top:5px solid transparent;border-bottom:5px solid transparent;"></div>
+        </div>
+      </div>
+
+      <!-- Done -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:120px;padding:14px 10px;border-radius:10px;border:1.5px solid #3FB950;background:#0a1f0a;text-align:center;box-shadow:0 0 20px rgba(63,185,80,0.15);">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1.5px;color:#3FB950;opacity:0.7;">04</div>
+        <div style="font-size:11px;font-weight:600;color:#3FB950;">Done</div>
+        <div style="width:8px;height:8px;border-radius:50%;background:#3FB950;"></div>
+      </div>
+
+      <!-- separator + label -->
+      <div style="margin-left:32px;padding-left:32px;border-left:1px solid #30363d;font-size:11px;color:#8b949e;line-height:1.6;max-width:320px;">
+        Subtasks kennen <span style="color:#e6edf3;font-weight:500;">nur diese 4 Status.</span><br>
+        Alles andere – Überarbeitung, Internes Review, Feedback von Kunde – lebt ausschließlich auf dem <span style="color:#e6edf3;font-weight:500;">Haupttask.</span>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<div style="height:80px;"></div>
+<div class="bottom-row">
+
+  <div class="rule-box">
+    <h3>// Kernregeln</h3>
+    <div class="rule">
+      <span class="rule-icon">📦</span>
+      <span><span class="highlight">Haupttask = Projektcontainer.</span> Fasst alle Subtasks eines Projekts zusammen – statt 5 losgelöste Tasks pro Projekt gibt es genau einen.</span>
+    </div>
+    <div class="rule">
+      <span class="rule-icon">🧩</span>
+      <span><span class="highlight">Subtasks = Iterationen.</span> Jede Bugfix-Runde, jedes Review und jede Erweiterung bekommt einen eigenen Subtask – der Haupttask bleibt sauber und zeigt nur den Gesamtstatus.</span>
+    </div>
+    <div class="rule">
+      <span class="rule-icon">🔄</span>
+      <span><span class="highlight">In Bearbeitung</span> = aktiv gebaut (nach internem Feedback). <span class="highlight">Überarbeitung</span> = Anpassung nach Kundenfeedback.</span>
+    </div>
+    <div class="rule">
+      <span class="rule-icon">🔴</span>
+      <span><span class="highlight">Feedback von Kunde</span> ist der Entscheidungspunkt: Kunde happy → Complete. Kunde hat Änderungen → zurück zu Überarbeitung.</span>
+    </div>
+    <div class="rule">
+      <span class="rule-icon">✅</span>
+      <span><span class="highlight">Done</span> = Subtask fertig, bleibt sichtbar. <span class="highlight">Complete</span> = Projekt abgenommen und beendet.</span>
+    </div>
+    <div class="rule">
+      <span class="rule-icon">👤</span>
+      <span>Letzter Mitarbeiter ändert <span class="highlight">den Projekt-Status.</span> GF und PM picked Internes Review selbst auf – keinen Subtask-Status für andere ändern.</span>
+    </div>
+  </div>
+
+  <div class="reasons-box">
+    <h3>// Warum dieses System?</h3>
+    <div class="rule">
+      <span class="rule-icon">🗂️</span>
+      <span><span class="highlight">35 Tasks → 8 Container.</span> Aktuell existieren für ein Projekt bis zu 6 separate Tasks ohne Zusammenhang. Ein Haupttask pro Projekt schafft sofort Übersicht.</span>
+    </div>
+    <div class="rule">
+      <span class="rule-icon">👁️</span>
+      <span><span class="highlight">Kein tägliches „Wo stehst du?"</span> Der Haupttask-Status spiegelt immer den aktuellen Projektstand – ohne einen einzigen Subtask aufzuklappen.</span>
+    </div>
+    <div class="rule">
+      <span class="rule-icon">🔁</span>
+      <span><span class="highlight">Überarbeitung ≠ In Bearbeitung.</span> Die Trennung macht sofort sichtbar ob wir intern arbeiten oder auf den Kunden warten – klare Verantwortlichkeit.</span>
+    </div>
+    <div class="rule">
+      <span class="rule-icon">📋</span>
+      <span><span class="highlight">History bleibt erhalten.</span> Done-Subtasks bleiben sichtbar – Erweiterungen, Bugfix-Runden und Reviews sind jederzeit nachvollziehbar.</span>
+    </div>
+    <div class="rule">
+      <span class="rule-icon">⚡</span>
+      <span><span class="highlight">Skalierbar ohne Aufwand.</span> Neues Projekt? Einen Haupttask anlegen, Subtasks rein – fertig. Das System wächst automatisch mit.</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+window.addEventListener('load', () => {
+  const diagram = document.getElementById('diagram');
+  const svg     = document.getElementById('loopSvg');
+
+  function center(el) {
+    const dr = diagram.getBoundingClientRect();
+    const er = el.getBoundingClientRect();
+    return {
+      x: er.left - dr.left + er.width  / 2,
+      y: er.top  - dr.top  + er.height / 2,
+      top:    er.top    - dr.top,
+      bottom: er.bottom - dr.top,
+      left:   er.left   - dr.left,
+      right:  er.right  - dr.left,
+      w: er.width,
+      h: er.height
+    };
+  }
+
+  const n5 = center(document.getElementById('n5'));
+  const n6 = center(document.getElementById('n6'));
+
+  const loopGap = 40;
+  const arrowGap = 8;
+
+  const topY    = n5.top    - loopGap;
+  const bottomY = n6.bottom + loopGap;
+
+  const nodeW = n5.w, nodeH = n5.h;
+  const arrowLen = 28;
+  const completeLeft = n6.right + arrowGap + arrowLen + arrowGap;
+  const completeTop  = n6.y - nodeH / 2;
+
+  const r = 10;
+
+  const bStart = { x: n6.x, y: n6.bottom + arrowGap };
+  const bEnd   = { x: n5.x, y: n5.bottom + arrowGap };
+
+  const pathBottom = [
+    `M ${bStart.x} ${bStart.y}`,
+    `L ${bStart.x} ${bottomY - r}`,
+    `Q ${bStart.x} ${bottomY} ${bStart.x - r} ${bottomY}`,
+    `L ${bEnd.x + r} ${bottomY}`,
+    `Q ${bEnd.x} ${bottomY} ${bEnd.x} ${bottomY - r}`,
+    `L ${bEnd.x} ${bEnd.y}`,
+  ].join(' ');
+
+  const tStart = { x: n5.x, y: n5.top - arrowGap };
+  const tEnd   = { x: n6.x, y: n6.top - arrowGap };
+
+  const pathTop = [
+    `M ${tStart.x} ${tStart.y}`,
+    `L ${tStart.x} ${topY + r}`,
+    `Q ${tStart.x} ${topY} ${tStart.x + r} ${topY}`,
+    `L ${tEnd.x - r} ${topY}`,
+    `Q ${tEnd.x} ${topY} ${tEnd.x} ${topY + r}`,
+    `L ${tEnd.x} ${tEnd.y}`,
+  ].join(' ');
+
+  const loopBot = document.createElementNS('http://www.w3.org/2000/svg','path');
+  loopBot.setAttribute('d', pathBottom);
+  loopBot.setAttribute('stroke','#F85149');
+  loopBot.setAttribute('stroke-width','1.8');
+  loopBot.setAttribute('fill','none');
+  loopBot.setAttribute('stroke-dasharray','6,3');
+  loopBot.setAttribute('opacity','0.75');
+  loopBot.setAttribute('marker-end','url(#arr-orange)');
+  svg.appendChild(loopBot);
+
+  const loopTop = document.createElementNS('http://www.w3.org/2000/svg','path');
+  loopTop.setAttribute('d', pathTop);
+  loopTop.setAttribute('stroke','#F85149');
+  loopTop.setAttribute('stroke-width','1.8');
+  loopTop.setAttribute('fill','none');
+  loopTop.setAttribute('stroke-dasharray','6,3');
+  loopTop.setAttribute('opacity','0.75');
+  svg.appendChild(loopTop);
+
+  const midX = (n5.x + n6.x) / 2;
+  const loopLabel = document.createElementNS('http://www.w3.org/2000/svg','text');
+  loopLabel.setAttribute('x', String(midX));
+  loopLabel.setAttribute('y', String(bottomY + 14));
+  loopLabel.setAttribute('text-anchor','middle');
+  loopLabel.setAttribute('font-family','JetBrains Mono');
+  loopLabel.setAttribute('font-size','9');
+  loopLabel.setAttribute('fill','#F85149');
+  loopLabel.setAttribute('opacity','0.6');
+  loopLabel.setAttribute('letter-spacing','1');
+  loopLabel.textContent = 'LOOP · weitere Änderungen';
+  svg.appendChild(loopLabel);
+
+  const arrStartX = n6.right + arrowGap;
+  const arrEndX   = completeLeft - arrowGap;
+  const arrY      = n6.y;
+
+  const grayLine = document.createElementNS('http://www.w3.org/2000/svg','line');
+  grayLine.setAttribute('x1', String(arrStartX));
+  grayLine.setAttribute('y1', String(arrY));
+  grayLine.setAttribute('x2', String(arrEndX));
+  grayLine.setAttribute('y2', String(arrY));
+  grayLine.setAttribute('stroke','#30363d');
+  grayLine.setAttribute('stroke-width','2');
+  grayLine.setAttribute('marker-end','url(#arr-gray)');
+  svg.appendChild(grayLine);
+
+  const completeDiv = document.createElement('div');
+  completeDiv.style.cssText = `
+    position: absolute;
+    left: ${completeLeft}px;
+    top: ${completeTop}px;
+    width: ${nodeW}px;
+    height: ${nodeH}px;
+    border-radius: 10px;
+    border: 1.5px solid #3FB950;
+    background: #0a1f0a;
+    box-shadow: 0 0 20px rgba(63,185,80,0.15);
+    color: #3FB950;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    cursor: default;
+    transition: transform 0.2s ease;
+  `;
+  completeDiv.innerHTML = `
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1.5px;opacity:0.7">07</div>
+    <div style="font-size:11px;font-weight:600">Complete</div>
+    <div style="width:8px;height:8px;border-radius:50%;background:#3FB950"></div>
+  `;
+  completeDiv.addEventListener('mouseenter', () => completeDiv.style.transform = 'translateY(-3px)');
+  completeDiv.addEventListener('mouseleave', () => completeDiv.style.transform = '');
+  diagram.appendChild(completeDiv);
+
+  const maxRight  = completeLeft + nodeW + 20;
+  const maxBottom = Math.max(bottomY + 30, completeTop + nodeH + 20);
+  svg.setAttribute('width',  String(maxRight));
+  svg.setAttribute('height', String(maxBottom));
+  diagram.style.width  = maxRight  + 'px';
+  diagram.style.height = maxBottom + 'px';
+});
+</script>
+
+
+<style>
+.sim-slot{width:300px;min-width:300px;border-radius:10px;padding:10px;background:#0d1117;border:1px solid #21262d;transition:background .15s,border-color .15s;flex-shrink:0;box-sizing:border-box;}
+.sim-slot.can-drop{border-color:var(--sc)!important;background:color-mix(in srgb,var(--sc) 8%,#0d1117)!important;}
+.sim-card{background:#161b22;border:1.5px solid var(--cc);border-radius:10px;padding:12px 14px;cursor:grab;user-select:none;box-shadow:0 0 18px color-mix(in srgb,var(--cc) 18%,transparent);box-sizing:border-box;}
+.sim-card.dragging{opacity:.3;cursor:grabbing;}
+.sim-sub{display:flex;align-items:flex-start;justify-content:space-between;background:#0d1117;border:1px solid #2a3040;border-radius:7px;padding:8px 10px;gap:8px;transition:all .2s;}
+.sim-sub.done{opacity:.4;border-color:#1a1f26;}
+.sim-status-wrap{position:relative;display:inline-block;}
+.sim-status-btn{display:inline-flex;align-items:center;gap:5px;border-radius:5px;padding:3px 8px;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;cursor:pointer;border:1px solid var(--sc);background:color-mix(in srgb,var(--sc) 15%,transparent);color:var(--sc);transition:background .15s;white-space:nowrap;}
+.sim-status-btn:hover{background:color-mix(in srgb,var(--sc) 28%,transparent);}
+.sim-dropdown{position:absolute;top:calc(100% + 6px);left:0;z-index:9999;background:#1c2128;border:1px solid #30363d;border-radius:10px;padding:6px 0;min-width:210px;box-shadow:0 8px 32px rgba(0,0,0,.6);display:none;}
+.sim-dropdown.open{display:block;}
+.sim-dd-section{font-family:'JetBrains Mono',monospace;font-size:9px;color:#6E7681;letter-spacing:1px;text-transform:uppercase;padding:6px 14px 3px;}
+.sim-dd-item{display:flex;align-items:center;gap:10px;padding:7px 14px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;transition:background .1s;}
+.sim-dd-item:hover{background:#262c36;}
+.sim-dd-item.active{background:#1f2937;}
+.sim-dd-icon{width:16px;height:16px;border-radius:50%;border:2px solid var(--ic);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sim-dd-icon.filled{background:var(--ic);border-color:var(--ic);}
+.sim-reset-btn{background:transparent;border:1px solid #30363d;color:#8b949e;border-radius:6px;padding:6px 16px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.sim-reset-btn:hover{border-color:#8b949e;color:#e6edf3;}
+.sim-row{display:flex;align-items:center;}
+.sim-arrow-h{width:32px;height:2px;background:#30363d;position:relative;flex-shrink:0;margin:0 2px;}
+.sim-arrow-h.right::after{content:'';position:absolute;right:-1px;top:-4px;border-left:7px solid #30363d;border-top:5px solid transparent;border-bottom:5px solid transparent;}
+.sim-arrow-h.left::before{content:'';position:absolute;left:-1px;top:-4px;border-right:7px solid #30363d;border-top:5px solid transparent;border-bottom:5px solid transparent;}
+.sim-arrow-v{width:2px;background:#30363d;position:relative;}
+.sim-arrow-v::after{content:'';position:absolute;bottom:-1px;left:-4px;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid #30363d;}
+</style>
+
+<div id="sim-wrap" style="width:100%;max-width:1280px;margin-top:160px;margin-bottom:120px;">
+  <div style="text-align:center;margin-bottom:48px;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#3FB950;opacity:.5;margin-bottom:12px;">// Live Demo</div>
+    <div style="font-size:22px;font-weight:600;color:#e6edf3;letter-spacing:-.5px;margin-bottom:8px;">Strohhacker &#8211; Taxi Buchungs Bot</div>
+    <div style="font-size:12px;color:#8b949e;font-family:'JetBrains Mono',monospace;">Ziehe die Karte in die n&#228;chste Spalte &#183; Status-Badge klicken f&#252;r Dropdown</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:24px;margin-bottom:48px;">
+    <div style="flex:1;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#8b949e;">Projektfortschritt</span>
+        <span id="sim-pct" style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#388BFD;">0%</span>
+      </div>
+      <div style="background:#21262d;border-radius:4px;height:6px;overflow:hidden;">
+        <div id="sim-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#388BFD,#3FB950);border-radius:4px;transition:width .5s ease;"></div>
+      </div>
+    </div>
+    <button class="sim-reset-btn" onclick="simReset()">&#8635; Reset</button>
+  </div>
+  <div id="sim-board"></div>
+</div>
+
+<script>
+(function(){
+
+var SCFG = {
+  "zu-erledigen":    {label:"Zu Erledigen",       color:"#6E7681"},
+  "in-bearbeitung":  {label:"In Bearbeitung",     color:"#388BFD"},
+  "internes-review": {label:"Internes Review",    color:"#A371F7"},
+  "warten-auf-kunde":{label:"Warten auf Kunde",   color:"#D29922"},
+  "ueberarbeitung":  {label:"\u00dcberarbeitung", color:"#DB6D28"},
+  "feedback-kunde":  {label:"Feedback von Kunde", color:"#F85149"},
+  "erledigt":        {label:"Erledigt",           color:"#3FB950"},
+  "vollstaendig":    {label:"Vollst\u00e4ndig",  color:"#3FB950"}
+};
+
+var BG = {
+  "zu-erledigen":"#161b22","in-bearbeitung":"#0c1a2e","internes-review":"#1a0f2e",
+  "warten-auf-kunde":"#1f1600","ueberarbeitung":"#1f0e00","feedback-kunde":"#1f0000",
+  "vollstaendig":"#0a1f0a"
+};
+
+// Simplified flow – shows the loop clearly
+// Zu Erledigen → In Bearbeitung → Internes Review → Feedback von Kunde → Überarbeitung → Feedback von Kunde → Vollständig
+var FLOW = [
+  {type:"move",   to:"in-bearbeitung"},
+  {type:"complete", sub:"s1", spawns:{id:"s2",title:"Internes Review \u2013 Mo",who:"MO"}},
+  {type:"move",   to:"internes-review"},
+  {type:"complete", sub:"s2"},
+  {type:"move",   to:"feedback-kunde", spawns:{id:"s3",title:"Kundenfeedback Bugfix 1",who:"MF"}},
+  {type:"move",   to:"ueberarbeitung"},
+  {type:"complete", sub:"s3"},
+  {type:"move",   to:"feedback-kunde"},
+  {type:"move",   to:"vollstaendig"}
+];
+var TOTAL = FLOW.length;
+
+var ROW1 = ["zu-erledigen","in-bearbeitung","internes-review"];
+var ROW2_DISPLAY = ["vollstaendig","ueberarbeitung","feedback-kunde"]; // right-to-left on screen
+
+function initState(){
+  return {
+    step:0, status:"zu-erledigen",
+    subtasks:[{id:"s1",title:"Taxi Bot MVP bauen + Datenbank anlegen",who:"MF",done:false}]
+  };
+}
+var S = initState();
+var dragFrom = null;
+
+window.simReset = function(){ S=initState(); render(); updateBar(); };
+
+function curFlow(){ return S.step<FLOW.length?FLOW[S.step]:null; }
+
+function doStep(){
+  var f=curFlow(); if(!f) return;
+  if(f.type==="move"){
+    S.status=f.to;
+    if(f.spawns) S.subtasks.push({id:f.spawns.id,title:f.spawns.title,who:f.spawns.who,done:false});
+    S.step++;
+  } else if(f.type==="complete"){
+    var sub=S.subtasks.find(function(s){return s.id===f.sub;});
+    if(sub) sub.done=true;
+    if(f.spawns) S.subtasks.push({id:f.spawns.id,title:f.spawns.title,who:f.spawns.who,done:false});
+    S.step++;
+  }
+  render(); updateBar();
+}
+
+function canDropOn(to){ var f=curFlow(); return f&&f.type==="move"&&f.to===to; }
+
+function updateBar(){
+  var p=Math.round(S.step/TOTAL*100);
+  document.getElementById("sim-bar").style.width=p+"%";
+  var l=document.getElementById("sim-pct");
+  l.textContent=p+"%"; l.style.color=p===100?"#3FB950":"#388BFD";
+}
+
+function closeDD(){ document.querySelectorAll(".sim-dropdown").forEach(function(d){d.classList.remove("open");}); }
+document.addEventListener("click",closeDD);
+
+function ddIcon(colorKey, isActive){
+  var c=SCFG[colorKey]||{color:colorKey};
+  var icon=document.createElement("div");
+  icon.className="sim-dd-icon"+(isActive?" filled":"");
+  icon.style.setProperty("--ic",c.color);
+  if(isActive){
+    icon.innerHTML='<svg width="8" height="8" viewBox="0 0 8 8"><polyline points="1,4 3,6 7,2" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>';
+  }
+  return icon;
+}
+
+// Main task status dropdown
+function makeMainDD(currentKey, onChange){
+  var wrap=document.createElement("div"); wrap.className="sim-status-wrap";
+  var c=SCFG[currentKey];
+
+  var btn=document.createElement("button"); btn.className="sim-status-btn";
+  btn.style.setProperty("--sc",c.color);
+  var dot=document.createElement("span");
+  dot.style.cssText="width:6px;height:6px;border-radius:50%;background:"+c.color+";display:block;flex-shrink:0;";
+  btn.appendChild(dot);
+  btn.appendChild(document.createTextNode(c.label));
+  var caret=document.createElement("span"); caret.style.cssText="font-size:8px;opacity:.7;margin-left:2px;"; caret.textContent="▾";
+  btn.appendChild(caret);
+
+  var dd=document.createElement("div"); dd.className="sim-dropdown";
+
+  btn.addEventListener("click",function(e){ e.stopPropagation(); closeDD(); dd.classList.toggle("open"); });
+
+  var sec=document.createElement("div"); sec.className="sim-dd-section"; sec.textContent="Status"; dd.appendChild(sec);
+
+  ["zu-erledigen","in-bearbeitung","internes-review","warten-auf-kunde","ueberarbeitung","feedback-kunde","erledigt"].forEach(function(sk){
+    var sc=SCFG[sk];
+    var item=document.createElement("div"); item.className="sim-dd-item"+(sk===currentKey?" active":"");
+    item.appendChild(ddIcon(sk, sk===currentKey));
+    var lbl=document.createElement("span"); lbl.textContent=sc.label; lbl.style.color=sc.color;
+    item.appendChild(lbl);
+    item.addEventListener("click",function(e){ e.stopPropagation(); closeDD(); onChange(sk); });
+    dd.appendChild(item);
+  });
+
+  var sec2=document.createElement("div"); sec2.className="sim-dd-section"; sec2.style.marginTop="4px"; sec2.textContent="Geschlossen"; dd.appendChild(sec2);
+  var vItem=document.createElement("div"); vItem.className="sim-dd-item"+("vollstaendig"===currentKey?" active":"");
+  vItem.appendChild(ddIcon("vollstaendig","vollstaendig"===currentKey));
+  var vLbl=document.createElement("span"); vLbl.textContent="Vollst\u00e4ndig"; vLbl.style.color="#3FB950";
+  vItem.appendChild(vLbl);
+  vItem.addEventListener("click",function(e){ e.stopPropagation(); closeDD(); onChange("vollstaendig"); });
+  dd.appendChild(vItem);
+
+  wrap.appendChild(btn); wrap.appendChild(dd);
+  return wrap;
+}
+
+// Subtask status dropdown – only 4 statuses
+function makeSubDD(sub){
+  var subStatuses=["zu-erledigen","in-bearbeitung","warten-auf-kunde","erledigt"];
+  if(!sub.status) sub.status = sub.done ? "erledigt" : "zu-erledigen";
+  var currentKey=sub.status;
+  var c=SCFG[currentKey];
+
+  var wrap=document.createElement("div"); wrap.className="sim-status-wrap";
+
+  var btn=document.createElement("button"); btn.className="sim-status-btn";
+  btn.style.cssText="padding:2px 7px;font-size:9px;";
+  btn.style.setProperty("--sc",c.color);
+  var dot=document.createElement("span");
+  dot.style.cssText="width:5px;height:5px;border-radius:50%;background:"+c.color+";display:block;flex-shrink:0;";
+  btn.appendChild(dot);
+  btn.appendChild(document.createTextNode(c.label));
+
+  var dd=document.createElement("div"); dd.className="sim-dropdown";
+
+  btn.addEventListener("click",function(e){
+    e.stopPropagation();
+    closeDD();
+    dd.classList.toggle("open");
+  });
+
+  subStatuses.forEach(function(sk){
+    var sc=SCFG[sk];
+    var item=document.createElement("div"); item.className="sim-dd-item"+(sk===currentKey?" active":"");
+    item.appendChild(ddIcon(sk, sk===currentKey));
+    var lbl=document.createElement("span"); lbl.textContent=sc.label; lbl.style.color=sc.color;
+    item.appendChild(lbl);
+    item.addEventListener("click",function(e){
+      e.stopPropagation(); closeDD();
+      sub.status=sk;
+      sub.done=(sk==="erledigt");
+      if(sk==="erledigt"){
+        var f=curFlow();
+        if(f&&f.type==="complete"&&f.sub===sub.id){
+          doStep(); return;
+        }
+      }
+      render();
+    });
+    dd.appendChild(item);
+  });
+
+  wrap.appendChild(btn); wrap.appendChild(dd);
+  return wrap;
+}
+
+function makeCard(){
+  var isDone=S.step>=FLOW.length;
+  var c=SCFG[S.status];
+  var bg=BG[S.status]||"#161b22";
+
+  var card=document.createElement("div"); card.className="sim-card";
+  card.style.setProperty("--cc",c.color);
+  card.style.background=bg;
+
+  var title=document.createElement("div");
+  title.style.cssText="font-size:13px;font-weight:600;color:#e6edf3;font-family:'Inter',sans-serif;margin-bottom:8px;line-height:1.3;";
+  title.textContent="Strohhacker \u2013 Taxi Buchungs Bot";
+  card.appendChild(title);
+
+  // Main status dropdown
+  var mdd=makeMainDD(S.status,function(newKey){
+    S.status=newKey;
+    var f=curFlow();
+    if(f&&f.type==="move"&&f.to===newKey){
+      if(f.spawns) S.subtasks.push({id:f.spawns.id,title:f.spawns.title,who:f.spawns.who,done:false});
+      S.step++;
+    }
+    render(); updateBar();
+  });
+  mdd.style.marginBottom="10px";
+  card.appendChild(mdd);
+
+  var sep=document.createElement("div"); sep.style.cssText="border-top:1px solid #21262d;margin-bottom:8px;"; card.appendChild(sep);
+
+  var cnt=document.createElement("div"); cnt.style.cssText="font-size:10px;color:#8b949e;font-family:'Inter',sans-serif;margin-bottom:6px;";
+  cnt.textContent=S.subtasks.length+" Unteraufgabe"+(S.subtasks.length!==1?"n":""); card.appendChild(cnt);
+
+  var slist=document.createElement("div"); slist.style.cssText="display:flex;flex-direction:column;gap:5px;";
+
+  S.subtasks.forEach(function(sub){
+    var row=document.createElement("div"); row.className="sim-sub"+(sub.done?" done":"");
+
+    var left=document.createElement("div"); left.style.cssText="display:flex;align-items:flex-start;gap:7px;flex:1;";
+
+    var chk=document.createElement("div");
+    chk.style.cssText="width:13px;height:13px;border-radius:50%;flex-shrink:0;margin-top:1px;"
+      +"border:"+(sub.done?"none":"2px solid #30363d")+";"
+      +"background:"+(sub.done?"#3FB950":"transparent")+";"
+      +"display:flex;align-items:center;justify-content:center;"
+      +"font-size:8px;color:#0d1117;font-weight:700;";
+    if(sub.done) chk.textContent="✓";
+
+    var ttl=document.createElement("div");
+    // NO truncation – let it wrap
+    ttl.style.cssText="font-size:11px;font-weight:500;"
+      +"color:"+(sub.done?"#6E7681":"#c9d1d9")+";"
+      +"font-family:'Inter',sans-serif;"
+      +"text-decoration:"+(sub.done?"line-through":"none")+";"
+      +"line-height:1.4;word-break:break-word;";
+    ttl.textContent=sub.title;
+
+    left.appendChild(chk); left.appendChild(ttl);
+
+    var right=document.createElement("div"); right.style.cssText="display:flex;align-items:center;gap:5px;flex-shrink:0;margin-left:8px;";
+
+    var av=document.createElement("div");
+    av.style.cssText="width:18px;height:18px;border-radius:50%;flex-shrink:0;"
+      +"background:"+(sub.who==="MO"?"#A371F720":"#388BFD20")+";"
+      +"border:1px solid "+(sub.who==="MO"?"#A371F740":"#388BFD40")+";"
+      +"display:flex;align-items:center;justify-content:center;"
+      +"font-size:7px;font-weight:700;"
+      +"color:"+(sub.who==="MO"?"#A371F7":"#388BFD")+";"
+      +"font-family:'JetBrains Mono',monospace;";
+    av.textContent=sub.who;
+    right.appendChild(av);
+    right.appendChild(makeSubDD(sub));
+
+    row.appendChild(left); row.appendChild(right);
+    slist.appendChild(row);
+  });
+
+  card.appendChild(slist);
+
+  if(isDone){
+    var yay=document.createElement("div"); yay.style.cssText="margin-top:12px;text-align:center;font-size:18px;";
+    yay.textContent="\uD83C\uDF89 Projekt abgeschlossen!"; card.appendChild(yay);
+  }
+
+  card.draggable=true;
+  card.addEventListener("dragstart",function(e){ dragFrom=S.status; setTimeout(function(){ card.classList.add("dragging"); },0); e.dataTransfer.effectAllowed="move"; });
+  card.addEventListener("dragend",function(){ card.classList.remove("dragging"); dragFrom=null; document.querySelectorAll(".sim-slot").forEach(function(s){s.classList.remove("can-drop");}); });
+
+  return card;
+}
+
+function makeSlot(sk){
+  var c=SCFG[sk]; var isActive=S.status===sk;
+  var slot=document.createElement("div"); slot.className="sim-slot"; slot.style.setProperty("--sc",c.color);
+
+  var hbadge=document.createElement("div");
+  hbadge.style.cssText="display:inline-flex;align-items:center;gap:5px;"
+    +"background:"+c.color+(isActive?"25":"12")+";"
+    +"border:1px solid "+c.color+(isActive?"55":"25")+";"
+    +"color:"+c.color+";border-radius:6px;padding:4px 10px;"
+    +"font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;"
+    +"letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;";
+  var hdot=document.createElement("span"); hdot.style.cssText="width:6px;height:6px;border-radius:50%;background:"+c.color+";display:block;flex-shrink:0;";
+  hbadge.appendChild(hdot); hbadge.appendChild(document.createTextNode(c.label));
+  slot.appendChild(hbadge);
+
+  var dz=document.createElement("div"); dz.style.cssText="min-height:72px;border-radius:8px;";
+  if(isActive){ dz.appendChild(makeCard()); }
+  else {
+    var ph=document.createElement("div");
+    ph.style.cssText="min-height:60px;border:1.5px dashed #21262d;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#30363d;font-family:'JetBrains Mono',monospace;";
+    ph.textContent="+ Aufgabe hinzuf\u00fcgen"; dz.appendChild(ph);
+  }
+  slot.appendChild(dz);
+
+  slot.addEventListener("dragover",function(e){ if(canDropOn(sk)){e.preventDefault();slot.classList.add("can-drop");} });
+  slot.addEventListener("dragleave",function(){ slot.classList.remove("can-drop"); });
+  slot.addEventListener("drop",function(e){ e.preventDefault(); slot.classList.remove("can-drop"); if(dragFrom!==null&&canDropOn(sk)){ S.status=sk; var f=curFlow(); if(f&&f.type==="move"&&f.to===sk){ if(f.spawns) S.subtasks.push({id:f.spawns.id,title:f.spawns.title,who:f.spawns.who,done:false}); S.step++; } render(); updateBar(); } });
+
+  return slot;
+}
+
+function arrowH(dir){
+  var w=document.createElement("div"); w.style.cssText="display:flex;align-items:center;padding:0 4px;flex-shrink:0;align-self:center;";
+  var a=document.createElement("div"); a.className="sim-arrow-h "+dir; w.appendChild(a); return w;
+}
+
+function render(){
+  var board=document.getElementById("sim-board"); board.innerHTML="";
+
+  // Row 1 →
+  var r1=document.createElement("div"); r1.className="sim-row";
+  ROW1.forEach(function(sk,i){ r1.appendChild(makeSlot(sk)); if(i<ROW1.length-1) r1.appendChild(arrowH("right")); });
+  board.appendChild(r1);
+
+  // Down arrow right side
+  var dw=document.createElement("div"); dw.style.cssText="display:flex;justify-content:flex-end;padding-right:150px;height:40px;align-items:stretch;";
+  var dv=document.createElement("div"); dv.className="sim-arrow-v"; dw.appendChild(dv); board.appendChild(dw);
+
+  // Row 2 ← (vollstaendig | ← | ueberarbeitung | ← | feedback-kunde)
+  var r2=document.createElement("div"); r2.className="sim-row";
+  ROW2_DISPLAY.forEach(function(sk,i){ r2.appendChild(makeSlot(sk)); if(i<ROW2_DISPLAY.length-1) r2.appendChild(arrowH("left")); });
+  board.appendChild(r2);
+}
+
+render(); updateBar();
+})();
+</script>
+
+</body>
+</html>
